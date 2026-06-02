@@ -1,0 +1,2 @@
+CREATE DATABASE finance_tracker;
+SHOW DATABASES;
