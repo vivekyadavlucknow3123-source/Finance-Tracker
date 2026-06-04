@@ -8,12 +8,14 @@ try:
     )
 
     if connection.is_connected():
-        print(" Connected Successfully to MySQL!")
+        print("✅ Connected Successfully to MySQL!")
 
 except mysql.connector.Error as err:
-    print(" Error:", err)
+    print("❌ Error:", err)
 
 finally:
-    if 'connection' in locals() and connection.is_connected():
+    try:
         connection.close()
         print("Connection closed.")
+    except:
+        pass
