@@ -68,3 +68,4 @@ VALUES
 (1, 'Salary', 'Income');
 SELECT * FROM users;
 select * from categories;
+show tables;
