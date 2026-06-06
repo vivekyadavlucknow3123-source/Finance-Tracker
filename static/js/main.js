@@ -1,63 +1,43 @@
-document
-    .getElementById("transaction-form")
-    .addEventListener("submit", async function(event) {
+let deletedTransactions = [];
 
-        event.preventDefault();
+let redoTransactions = [];
 
-        const transaction = {
 
-            user_id: 1,
+/* ---------------------------
+   Load Categories
+---------------------------- */
 
-            category_id: parseInt(
-                document.getElementById(
-                    "category_id"
-                ).value
-            ),
+async function loadCategories() {
 
-            amount: parseFloat(
-                document.getElementById(
-                    "amount"
-                ).value
-            ),
+    const response =
+        await fetch('/categories');
 
-            transaction_type: "Expense",
+    const categories =
+        await response.json();
 
-            description:
-                document.getElementById(
-                    "description"
-                ).value,
+    const dropdown =
+        document.getElementById(
+            'category_id'
+        );
 
-            transaction_date:
-                document.getElementById(
-                    "transaction_date"
-                ).value
-        };
+    dropdown.innerHTML = '';
 
-        const response =
-            await fetch(
-                "/transactions",
-                {
-                    method: "POST",
+    categories.forEach(category => {
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            transaction
-                        )
-                }
-            );
-
-        const result =
-            await response.json();
-
-        alert(result.message);
+        dropdown.innerHTML += `
+            <option value="${category.category_id}">
+                ${category.category_name}
+            </option>
+        `;
     });
+}
 
-    function populateYears() {
+
+/* ---------------------------
+   Populate Years
+---------------------------- */
+
+function populateYears() {
 
     const yearSelect =
         document.getElementById(
@@ -81,9 +61,12 @@ document
     }
 }
 
-populateYears();
 
-    async function loadTransactions() {
+/* ---------------------------
+   Load Transactions
+---------------------------- */
+
+async function loadTransactions() {
 
     const response =
         await fetch('/transactions');
@@ -93,73 +76,300 @@ populateYears();
 
     const year =
         document.getElementById(
-            "year-select"
+            'year-select'
         ).value;
 
     const month =
         document.getElementById(
-            "month-select"
+            'month-select'
         ).value;
 
-    const container =
+    const table =
         document.getElementById(
             'transaction-list'
         );
 
-    container.innerHTML = '';
+    table.innerHTML = '';
 
-    let total = 0;
+    let totalIncome = 0;
 
-    transactions.forEach(
-        transaction => {
+    let totalExpense = 0;
 
-            const date =
-                new Date(
-                    transaction.transaction_date
-                );
+    transactions.forEach(transaction => {
 
-            const transactionYear =
-                date.getFullYear().toString();
+        const date =
+            new Date(
+                transaction.transaction_date
+            );
 
-            const transactionMonth =
-                String(
-                    date.getMonth() + 1
-                ).padStart(2, '0');
+        const transactionYear =
+            date.getFullYear().toString();
+
+        const transactionMonth =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, '0');
+
+        if (
+            (year === '' ||
+             transactionYear === year)
+            &&
+            (month === '' ||
+             transactionMonth === month)
+        ) {
 
             if (
-                (year === '' || transactionYear === year)
-                &&
-                (month === '' || transactionMonth === month)
+                transaction.transaction_type
+                === 'Income'
             ) {
 
-                total +=
+                totalIncome +=
                     parseFloat(
                         transaction.amount
                     );
 
-                container.innerHTML += `
-                    <p>
-                        <strong>
-                            ${transaction.description}
-                        </strong>
+            } else {
 
-                        -
-                        ₹${transaction.amount}
-
-                        -
-                        ${transaction.transaction_date}
-                    </p>
-                `;
+                totalExpense +=
+                    parseFloat(
+                        transaction.amount
+                    );
             }
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${transaction.transaction_id}</td>
+
+                    <td>${transaction.transaction_date}</td>
+
+                    <td>${transaction.description}</td>
+
+                    <td>${transaction.transaction_type}</td>
+
+                    <td>₹${transaction.amount}</td>
+
+                    <td>
+
+                        <button
+                        class="edit-btn"
+                        onclick="
+                        editTransaction(
+                        ${transaction.transaction_id},
+                        '${transaction.description}',
+                        ${transaction.amount}
+                        )">
+
+                        Edit
+
+                        </button>
+
+                        <button
+                        class="delete-btn"
+                        onclick="
+                        deleteTransaction(
+                        ${transaction.transaction_id}
+                        )">
+
+                        Delete
+
+                        </button>
+
+                    </td>
+
+                </tr>
+            `;
+        }
+    });
+
+    document.getElementById(
+        'total-income'
+    ).innerText =
+        `₹${totalIncome.toFixed(2)}`;
+
+    document.getElementById(
+        'total-expense'
+    ).innerText =
+        `₹${totalExpense.toFixed(2)}`;
+}
+
+
+/* ---------------------------
+   Add Transaction
+---------------------------- */
+
+document
+.getElementById(
+    "transaction-form"
+)
+.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        const transaction = {
+
+            user_id: 1,
+
+            category_id:
+            parseInt(
+                document.getElementById(
+                    "category_id"
+                ).value
+            ),
+
+            amount:
+            parseFloat(
+                document.getElementById(
+                    "amount"
+                ).value
+            ),
+
+            transaction_type:
+            document.getElementById(
+                "transaction_type"
+            ).value,
+
+            description:
+            document.getElementById(
+                "description"
+            ).value,
+
+            transaction_date:
+            document.getElementById(
+                "transaction_date"
+            ).value
+        };
+
+        await fetch(
+            "/transactions",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                JSON.stringify(
+                    transaction
+                )
+            }
+        );
+
+        loadTransactions();
+
+        document
+        .getElementById(
+            "transaction-form"
+        )
+        .reset();
+    }
+);
+
+
+/* ---------------------------
+   Delete Transaction
+---------------------------- */
+
+async function deleteTransaction(id) {
+
+    await fetch(
+        `/transactions/${id}`,
+        {
+            method: "DELETE"
         }
     );
 
-    container.innerHTML += `
-        <hr>
-
-        <h3>
-            Total Expenses:
-            ₹${total.toFixed(2)}
-        </h3>
-    `;
+    loadTransactions();
 }
+
+
+/* ---------------------------
+   Edit Transaction
+---------------------------- */
+
+async function editTransaction(
+    id,
+    description,
+    amount
+){
+
+    const newDescription =
+        prompt(
+            "Edit Description",
+            description
+        );
+
+    const newAmount =
+        prompt(
+            "Edit Amount",
+            amount
+        );
+
+    if(
+        !newDescription ||
+        !newAmount
+    ){
+        return;
+    }
+
+    await fetch(
+        `/transactions/${id}`,
+        {
+            method: "PUT",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:
+            JSON.stringify({
+
+                description:
+                newDescription,
+
+                amount:
+                parseFloat(
+                    newAmount
+                )
+            })
+        }
+    );
+
+    loadTransactions();
+}
+
+
+/* ---------------------------
+   Undo / Redo Placeholder
+---------------------------- */
+
+function undoDelete() {
+
+    alert(
+        "Undo functionality requires backend history tracking and will be added later."
+    );
+}
+
+function redoDelete() {
+
+    alert(
+        "Redo functionality requires backend history tracking and will be added later."
+    );
+}
+
+
+/* ---------------------------
+   Startup
+---------------------------- */
+
+populateYears();
+
+loadCategories();
+
+loadTransactions();
