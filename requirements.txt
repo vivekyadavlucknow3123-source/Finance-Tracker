@@ -1,6 +1,7 @@
-flask
-mysql-connector-python
-pandas
+flask(done)
+mysql-connector-python(done)
+pandas(done)
 scikit-learn
 python-dotenv
 werkzeug
+postman (for testing API endpoints)
