@@ -14,6 +14,9 @@ from routes.monthly_trend_routes import monthly_bp
 from routes.export_routes import (
     export_bp
 )
+from routes.pdf_routes import (
+    pdf_bp
+)
 
 app = Flask(__name__)
 
@@ -28,6 +31,9 @@ monthly_bp
 )
 app.register_blueprint(
     export_bp
+)
+app.register_blueprint(
+    pdf_bp
 )
 
 @app.route('/')
