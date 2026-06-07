@@ -1,147 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinanceTracker</title>
-    <link
-rel="stylesheet"
-href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
 
-    <h1>FinanceTracker</h1>
+    <nav>
+        <h1>💰 FinanceTracker Dashboard</h1>
+    </nav>
 
-    <h2>Add Transaction</h2>
-
-    <form id="transaction-form">
-
-        <label>Amount:</label>
-        <input type="number" id="amount" required>
-
-        <br><br>
-
-        <label>Category ID:</label>
-        <select id="category_id">
-
-</select>
-
-        <br><br>
-
-        <label>Description:</label>
-        <input type="text" id="description" required>
-
-        <br><br>
-
-        <label>Date:</label>
-        <input type="date" id="transaction_date" required>
-
-        <label>
-Transaction Type
-</label>
-
-<select id="transaction_type">
-
-    <option value="Expense">
-        Expense
-    </option>
-
-    <option value="Income">
-        Income
-    </option>
-
-</select>
-
-        <br><br>
-
-        <button type="submit">
-            Add Transaction
-        </button>
-
-    </form>
-
-    <h2>Filter Transactions</h2>
-
-<label>Year:</label>
-
-<select id="year-select">
-    <option value="">All Years</option>
-</select>
-
-<label>Month:</label>
-
-<select id="month-select">
-    <option value="">All Months</option>
-
-    <option value="01">January</option>
-    <option value="02">February</option>
-    <option value="03">March</option>
-    <option value="04">April</option>
-    <option value="05">May</option>
-    <option value="06">June</option>
-    <option value="07">July</option>
-    <option value="08">August</option>
-    <option value="09">September</option>
-    <option value="10">October</option>
-    <option value="11">November</option>
-    <option value="12">December</option>
-
-</select>
-
-<button onclick="loadTransactions()">
-    Filter
-</button>
-
-<hr>
-
-    <h2>Transactions</h2>
-
-<div class="summary-card">
-
-    <h2>
-        Total Expenses
-    </h2>
-
-    <h3 id="total-expense">
-        ₹0
-    </h3>
-
-</div>
+    <div class="dashboard-container">
 
 
-<table>
 
-    <thead>
-        
+        <!-- Summary Cards -->
 
-        <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-            <th>Action</th>
-        </tr>
+        <div class="summary-container">
 
-    </thead>
+            <div class="summary-card">
+                <h3>Total Income</h3>
+                <h2 id="total-income">₹0</h2>
+            </div>
 
-    <tbody id="transaction-list">
+            <div class="summary-card">
+                <h3>Total Expense</h3>
+                <h2 id="total-expense">₹0</h2>
+            </div>
 
-    </tbody>
+            <div class="summary-card">
+                <h3>Remaining Budget</h3>
+                <h2 id="remaining-budget">₹0</h2>
+                <h4 id="budget-warning"></h4>
+            </div>
 
-</table>
+        </div>
 
-</div>
-<nav>
+        <!-- Transaction Form -->
 
-    <h2>
-        FinanceTracker
-    </h2>
+        <div class="form-container">
 
-    <hr>
+            <h2>Add Transaction</h2>
 
-</nav>
+            <form id="transaction-form">
 
-     <script src="/static/js/main.js"></script>
+                <input
+                    type="number"
+                    id="amount"
+                    placeholder="Amount"
+                    required>
+
+                <select id="category_id"></select>
+
+                <select id="transaction_type">
+
+                    <option value="Expense">
+                        Expense
+                    </option>
+
+                    <option value="Income">
+                        Income
+                    </option>
+
+                </select>
+
+                <input
+                    type="text"
+                    id="description"
+                    placeholder="Description"
+                    required>
+
+                <input
+                    type="date"
+                    id="transaction_date"
+                    required>
+
+                <button type="submit">
+                    Add Transaction
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- Filters -->
+
+        <div class="filter-container">
+
+            <h2>Filter Transactions</h2>
+
+            <select id="year-select">
+                <option value="">
+                    All Years
+                </option>
+            </select>
+
+            <select id="month-select">
+
+                <option value="">
+                    All Months
+                </option>
+
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+
+            </select>
+
+            <button
+                type="button"
+                onclick="loadTransactions()">
+                Apply Filter
+            </button>
+
+        </div>
+
+        <!-- Actions -->
+
+        <div class="action-container">
+
+            <button onclick="undoDelete()">
+                Undo Delete
+            </button>
+
+            <button onclick="redoDelete()">
+                Redo Delete
+            </button>
+
+        </div>
+
+        <!-- Analytics Section -->
+
+        <h2>Analytics Dashboard</h2>
+
+        <div class="chart-container">
+
+            <div class="chart-card">
+
+                <h3>
+                    Expense Categories
+                </h3>
+
+                <canvas id="categoryChart"></canvas>
+
+            </div>
+
+            <div class="chart-card">
+
+                <h3>
+                    Monthly Expenses
+                </h3>
+
+                <canvas id="monthlyChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- Transactions Table -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="transaction-list">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Main JS -->
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
 

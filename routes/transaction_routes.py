@@ -10,6 +10,11 @@ from services.transaction_service import (
     get_all_transactions,
     add_transaction
 )
+from flask import request
+
+from services.update_transaction import (
+     update_transaction
+)
 
 transaction_bp = Blueprint(
     'transaction_bp',
@@ -45,3 +50,42 @@ def create_transaction():
     return jsonify({
         "message": "Transaction Added Successfully"
     })
+from services.delete_transaction import delete_transaction
+
+
+@transaction_bp.route(
+    '/transactions/<int:transaction_id>',
+    methods=['DELETE']
+)
+def delete_transaction_route(transaction_id):
+
+    delete_transaction(transaction_id)
+
+    return {
+        "message":
+        "Transaction Deleted Successfully"
+    }
+
+@transaction_bp.route(
+    '/transactions/<int:transaction_id>',
+    methods=['PUT']
+)
+def update_transaction_route(
+    transaction_id
+):
+
+    data = request.get_json()
+
+    update_transaction(
+
+        transaction_id,
+
+        data['amount'],
+
+        data['description']
+    )
+
+    return {
+        "message":
+        "Transaction Updated Successfully"
+    }
