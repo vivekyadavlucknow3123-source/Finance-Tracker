@@ -1,0 +1,6 @@
+Transaction ID,User ID,Category ID,Amount,Type,Description,Date
+2,1,1,500.00,Expense,Coffee,2025-06-05
+4,1,1,450.00,Expense,coffe,2026-06-07
+6,1,3,50000.00,Income,job,2025-01-12
+7,1,2,700.00,Expense,home,2026-12-08
+8,1,3,700.00,Income,work,2026-02-06

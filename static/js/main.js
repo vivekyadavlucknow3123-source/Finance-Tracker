@@ -678,7 +678,18 @@ async function loadMonthlyChart() {
         );
     }
 }
+/*
+=========================================
+Export CSV
+Day 11
+=========================================
+*/
 
+function exportCSV() {
+
+    window.location.href =
+        "/export/csv";
+}
 
 /*
 =========================================

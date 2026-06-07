@@ -11,6 +11,9 @@ from routes.category_routes import category_bp
 from routes.analytics_routes import analytics_bp
 from routes.budget_routes import budget_bp
 from routes.monthly_trend_routes import monthly_bp
+from routes.export_routes import (
+    export_bp
+)
 
 app = Flask(__name__)
 
@@ -23,7 +26,9 @@ app.register_blueprint(
 app.register_blueprint(
 monthly_bp
 )
-
+app.register_blueprint(
+    export_bp
+)
 
 @app.route('/')
 def home():
