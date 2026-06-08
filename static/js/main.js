@@ -1,22 +1,21 @@
 // =====================================
-// UNDO / REDO STACKS
+// UNDO / REDO HISTORY STACKS & CACHE
 // =====================================
-// ✨ EXPLANATION: These arrays store the history of our actions. 
-// When we delete something, it goes into 'deletedTransactions'. 
-// If we undo it, it goes into 'redoTransactions'.
 let deletedTransactions = [];
 let redoTransactions = [];
+let globalCategories = []; // ✨ FIX: Global array categories ki sahi ID dhoondhne ke liye
 
 let categoryChart = null;
 let monthlyChart = null;
 
 // =====================================
-// Load Categories
+// Load Categories Dropdowns
 // =====================================
 async function loadCategories() {
     try {
         const response = await fetch('/categories');
-        const categories = await response.json();
+        globalCategories = await response.json(); 
+        
         const dropdown = document.getElementById('category_id');
         dropdown.innerHTML = '';
 
@@ -25,7 +24,7 @@ async function loadCategories() {
             categoryFilter.innerHTML = `<option value="">All Categories</option>`;
         }
 
-        categories.forEach(category => {
+        globalCategories.forEach(category => {
             if(categoryFilter){
                 categoryFilter.innerHTML += `<option value="${category.category_name}">${category.category_name}</option>`;
             }
@@ -37,7 +36,7 @@ async function loadCategories() {
 }
 
 // =====================================
-// Populate Year Dropdown
+// Populate Year Dropdown Filter
 // =====================================
 function populateYears() {
     const yearSelect = document.getElementById("year-select");
@@ -49,7 +48,7 @@ function populateYears() {
 }
 
 // =====================================
-// Load Transactions
+// Fetch and Render Transactions Table
 // =====================================
 async function loadTransactions() {
     try {
@@ -76,7 +75,6 @@ async function loadTransactions() {
         const selectedYear = document.getElementById('year-select')?.value || '';
         const selectedMonth = document.getElementById('month-select')?.value || '';
         
-        // ✨ EXPLANATION: Filtering logic happens FIRST before checking if array is empty
         let filteredTransactions = transactions.filter(transaction => {
             const matchesSearch = transaction.description.toLowerCase().includes(searchText);
             const matchesType = typeFilter === "" || transaction.transaction_type === typeFilter;
@@ -84,15 +82,13 @@ async function loadTransactions() {
             return (matchesSearch && matchesType && matchesCategory);
         });
 
-        // SORTING LOGIC
         if (sortValue === "amount-desc") filteredTransactions.sort((a, b) => b.amount - a.amount);
         if (sortValue === "amount-asc") filteredTransactions.sort((a, b) => a.amount - b.amount);
         if (sortValue === "date-desc") filteredTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
         if (sortValue === "date-asc") filteredTransactions.sort((a, b) => new Date(a.transaction_date) - new Date(b.transaction_date));
 
-        // EMPTY STATE CHECK
         if(filteredTransactions && filteredTransactions.length === 0){
-            container.innerHTML = `<tr><td colspan="6">No Transactions Found</td></tr>`;
+            container.innerHTML = `<tr><td colspan="6" style="text-align:center;">No Transactions Found</td></tr>`;
         }
 
         filteredTransactions.forEach(transaction => {
@@ -111,8 +107,7 @@ async function loadTransactions() {
                     totalExpense += parseFloat(transaction.amount);
                 }
 
-                // ✨ EXPLANATION: We update the Delete button here to pass ALL transaction details to the function. 
-                // This gives our undo feature the data it needs to recreate the transaction later.
+                // ✨ FIX: category_name ko safely pass kiya jaa raha hai
                 container.innerHTML += `
                     <tr>
                         <td>${transaction.transaction_id}</td>
@@ -122,10 +117,7 @@ async function loadTransactions() {
                         <td>₹${transaction.amount}</td>
                         <td>
                             <button onclick="editTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount})">Edit</button>
-                            
-                            <button onclick="deleteTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount}, ${transaction.category_id || 1}, '${transaction.transaction_type}', '${transaction.transaction_date}')">
-                                Delete
-                            </button>
+                            <button onclick="deleteTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount}, '${transaction.category_name}', '${transaction.transaction_type}', '${transaction.transaction_date}')">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -135,7 +127,6 @@ async function loadTransactions() {
         document.getElementById("total-income").innerText = `₹${totalIncome.toFixed(2)}`;
         document.getElementById("total-expense").innerText = `₹${totalExpense.toFixed(2)}`;
 
-        // Budget Calculation
         try {
             const budget = await loadBudget();
             const remaining = budget - totalExpense;
@@ -166,7 +157,7 @@ async function loadTransactions() {
 }
 
 // =====================================
-// Add Transaction
+// Add New Transaction Handling
 // =====================================
 const form = document.getElementById("transaction-form");
 if (form) {
@@ -199,25 +190,22 @@ if (form) {
 }
 
 // =====================================
-// Delete Transaction (Now saves history!)
+// Delete Transaction Function
 // =====================================
-// ✨ EXPLANATION: We take all parameters so we can save the complete object.
-async function deleteTransaction(id, description, amount, category_id, transaction_type, transaction_date) {
+async function deleteTransaction(id, description, amount, category_name, transaction_type, transaction_date) {
     const confirmDelete = confirm("Delete this transaction?");
     if (!confirmDelete) return;
 
     try {
-        // ✨ EXPLANATION: Push the exact data object to our deleted array BEFORE we delete it from the backend.
         deletedTransactions.push({
             transaction_id: id,
             description: description,
             amount: amount,
-            category_id: category_id,
+            category_name: category_name,
             transaction_type: transaction_type,
             transaction_date: transaction_date
         });
 
-        // Clear redo stack because a new action occurred
         redoTransactions = [];
 
         await fetch(`/transactions/${id}`, { method: "DELETE" });
@@ -231,9 +219,8 @@ async function deleteTransaction(id, description, amount, category_id, transacti
 }
 
 // =====================================
-// Undo Delete
+// Undo Delete Action (FIXED)
 // =====================================
-// ✨ EXPLANATION: This takes the last item out of the 'deleted' array and POSTs it back to the database.
 async function undoDelete() {
     if (deletedTransactions.length === 0) {
         alert("Nothing to undo!");
@@ -242,15 +229,26 @@ async function undoDelete() {
 
     const transactionToRestore = deletedTransactions.pop();
 
+    // ✨ FIX: Global array se real category_id dhoondh raha hai taaki backend crash na ho
+    const matchedCategory = globalCategories.find(c => c.category_name === transactionToRestore.category_name);
+    const resolvedCategoryId = matchedCategory ? matchedCategory.category_id : (globalCategories[0]?.category_id || 1);
+
+    const safePayload = {
+        category_id: parseInt(resolvedCategoryId),
+        amount: parseFloat(transactionToRestore.amount),
+        transaction_type: transactionToRestore.transaction_type,
+        description: transactionToRestore.description,
+        transaction_date: transactionToRestore.transaction_date
+    };
+
     try {
         await fetch("/transactions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(transactionToRestore)
+            body: JSON.stringify(safePayload)
         });
 
-        // Push it into redo stack so we can delete it again if we want
-        redoTransactions.push(transactionToRestore);
+        redoTransactions = [];
 
         loadTransactions();
         loadCategoryChart();
@@ -261,9 +259,8 @@ async function undoDelete() {
 }
 
 // =====================================
-// Redo Delete
+// Redo Delete Action
 // =====================================
-// ✨ EXPLANATION: This takes the item we just restored, and deletes it again.
 async function redoDelete() {
     if (redoTransactions.length === 0) {
         alert("Nothing to redo!");
@@ -275,7 +272,6 @@ async function redoDelete() {
     try {
         await fetch(`/transactions/${transactionToDelete.transaction_id}`, { method: "DELETE" });
 
-        // Push it back to the undo stack
         deletedTransactions.push(transactionToDelete);
 
         loadTransactions();
@@ -287,7 +283,7 @@ async function redoDelete() {
 }
 
 // =====================================
-// Edit Transaction
+// Modify Existing Entry inline
 // =====================================
 async function editTransaction(id, oldDescription, oldAmount) {
     const newDescription = prompt("Edit Description", oldDescription);
@@ -314,7 +310,7 @@ async function editTransaction(id, oldDescription, oldAmount) {
 }
 
 // =====================================
-// Analytics Charts
+// Analytics Chart.js Interactivity
 // =====================================
 async function loadCategoryChart() {
     try {
@@ -360,7 +356,7 @@ async function loadMonthlyChart() {
 }
 
 // =====================================
-// Load Budget
+// Obtain Initial Budget Setup Value
 // =====================================
 async function loadBudget() {
     try {
@@ -374,13 +370,13 @@ async function loadBudget() {
 }
 
 // =====================================
-// Exports
+// Export Actions
 // =====================================
 function exportCSV() { window.location.href = "/export/csv"; }
 function exportPDF() { window.location.href = "/export/pdf"; }
 
 // =====================================
-// AUTO SEARCH & FILTERS
+// Auto-Run Input Listeners & Reset Actions
 // =====================================
 document.getElementById("search-input")?.addEventListener("keyup", loadTransactions);
 document.getElementById("sort-select")?.addEventListener("change", loadTransactions);
@@ -396,7 +392,7 @@ document.getElementById("reset-filters")?.addEventListener("click", () => {
 });
 
 // =====================================
-// Startup
+// Orchestration / Initialization
 // =====================================
 populateYears();
 loadCategories();
