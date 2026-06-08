@@ -7,11 +7,13 @@ Day 12
 
 from flask import (
     Blueprint,
-    send_file
+    send_file,
+    session
 )
 
 from services.transaction_service import (
-    get_all_transactions
+    get_all_transactions,
+    get_transactions_by_user
 )
 
 from services.pdf_service import (
@@ -30,9 +32,11 @@ pdf_bp = Blueprint(
 )
 def export_pdf():
 
-    transactions = (
-        get_all_transactions()
-    )
+    user_id = session["user_id"]
+
+    transactions = get_transactions_by_user(
+    user_id
+   )
 
     total_income = 0
     total_expense = 0

@@ -37,9 +37,6 @@ def add_transaction(
     description,
     transaction_date
 ):
-    """
-    Insert a new transaction into database.
-    """
 
     conn = get_connection()
 
@@ -70,10 +67,12 @@ def add_transaction(
             transaction_date
         )
     )
-"""
-Get transactions for logged in user
-"""
 
+    # IMPORTANT
+    conn.commit()
+
+    cursor.close()
+    conn.close()
 def get_transactions_by_user(
     user_id
 ):
@@ -90,6 +89,20 @@ def get_transactions_by_user(
     WHERE user_id = %s
     ORDER BY transaction_date DESC
     """
+
+    cursor.execute(
+        query,
+        (user_id,)
+    )
+
+    transactions = (
+        cursor.fetchall()
+    )
+
+    cursor.close()
+    connection.close()
+
+    return transactions
 
     cursor.execute(
         query,

@@ -1,7 +1,7 @@
 from database.database.db_connection import get_connection
 
 
-def get_monthly_expenses():
+def get_monthly_expenses(user_id):
 
     conn = get_connection()
 
@@ -10,27 +10,25 @@ def get_monthly_expenses():
     )
 
     query = """
-    SELECT
+SELECT
+DATE_FORMAT(
+transaction_date,
+'%Y-%m'
+) AS month,
 
-        MONTH(transaction_date)
-        AS month,
+SUM(amount) AS total
 
-        SUM(amount)
-        AS total
+FROM transactions
 
-    FROM transactions
+WHERE transaction_type='Expense'
+AND user_id=%s
 
-    WHERE
-    transaction_type='Expense'
+GROUP BY month
 
-    GROUP BY
-    MONTH(transaction_date)
+ORDER BY month
+"""
 
-    ORDER BY
-    MONTH(transaction_date)
-    """
-
-    cursor.execute(query)
+    cursor.execute(query, (user_id,))
 
     result =cursor.fetchall()
 

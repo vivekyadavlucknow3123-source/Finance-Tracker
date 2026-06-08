@@ -47,12 +47,6 @@ def get_transactions():
     )
 
 
-@transaction_bp.route('/transactions')
-def transactions():
-
-    data = get_all_transactions()
-
-    return jsonify(data)
 
 
 @transaction_bp.route(
