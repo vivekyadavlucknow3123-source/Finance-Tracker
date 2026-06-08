@@ -70,6 +70,40 @@ def add_transaction(
             transaction_date
         )
     )
+"""
+Get transactions for logged in user
+"""
+
+def get_transactions_by_user(
+    user_id
+):
+
+    connection = get_connection()
+
+    cursor = connection.cursor(
+        dictionary=True
+    )
+
+    query = """
+    SELECT *
+    FROM transactions
+    WHERE user_id = %s
+    ORDER BY transaction_date DESC
+    """
+
+    cursor.execute(
+        query,
+        (user_id,)
+    )
+
+    transactions = (
+        cursor.fetchall()
+    )
+
+    cursor.close()
+    connection.close()
+
+    return transactions
 
     conn.commit()
 

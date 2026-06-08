@@ -13,8 +13,17 @@
 <body>
 
     <nav>
+        <!-- Logo and Welcome Message -->
+        <h3>
+    Welcome,
+    {{ session.username }}
+</h3>
         <h1>💰 FinanceTracker Dashboard</h1>
+
     </nav>
+    <!--logout button-->
+   <a href="/logout">Logout</a>
+
 
     <div class="dashboard-container">
 

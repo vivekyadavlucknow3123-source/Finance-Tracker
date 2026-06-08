@@ -313,7 +313,7 @@ if (form) {
 
             const transaction = {
 
-                user_id: 1,
+                /*user_id: 1, (this make every one see same transection record on removing it backend deside who see what)*/
 
                 category_id:
                     parseInt(

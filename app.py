@@ -4,6 +4,7 @@ FinanceTracker Main Application
 
 from flask import Flask
 
+from flask import session, redirect
 from routes.user_routes import user_bp
 from routes.transaction_routes import transaction_bp
 from flask import render_template
@@ -17,11 +18,16 @@ from routes.export_routes import (
 from routes.pdf_routes import (
     pdf_bp
 )
+from routes.auth_routes import (
+    auth_bp
+)
 
 app = Flask(__name__)
+app.secret_key = "FinanceTrackerSecretKey"
 
 # Register route groups
 app.register_blueprint(user_bp)
+app.register_blueprint(auth_bp)
 app.register_blueprint(transaction_bp)
 app.register_blueprint(
     budget_bp
@@ -36,10 +42,15 @@ app.register_blueprint(
     pdf_bp
 )
 
-@app.route('/')
+@app.route("/")
 def home():
 
-    return render_template('index.html')
+    if "user_id" not in session:
+        return redirect("/login")
+
+    return render_template(
+        "index.html"
+    )
     
 app.register_blueprint(category_bp)
 

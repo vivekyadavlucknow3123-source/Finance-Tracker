@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask import jsonify
+from flask import session
 
 from services.analytics_service import get_category_totals
 
@@ -10,10 +11,12 @@ analytics_bp = Blueprint(
 
 
 @analytics_bp.route(
-    '/analytics/categories'
+    "/analytics/categories"
 )
-def category_analytics():
+def category_totals():
 
-    data = get_category_totals()
+    user_id = session["user_id"]
 
-    return jsonify(data)
+    return jsonify(
+        get_category_totals(user_id)
+    )

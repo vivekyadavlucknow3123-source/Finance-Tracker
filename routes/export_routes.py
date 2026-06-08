@@ -7,11 +7,13 @@ Day 11
 
 from flask import (
     Blueprint,
-    send_file
+    send_file,
+    session
 )
 
 from services.transaction_service import (
-    get_all_transactions
+    get_all_transactions,
+    get_transactions_by_user
 )
 
 from services.export_service import (
@@ -30,8 +32,10 @@ export_bp = Blueprint(
 )
 def export_csv():
 
-    transactions = (
-        get_all_transactions()
+    user_id = session["user_id"]
+
+    transactions = get_transactions_by_user(
+    user_id
     )
 
     file_path = (

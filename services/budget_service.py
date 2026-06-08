@@ -1,7 +1,7 @@
 from database.database.db_connection import get_connection
 
 
-def get_budget():
+def get_budget(user_id):
 
     conn = get_connection()
 
@@ -10,17 +10,26 @@ def get_budget():
     )
 
     query = """
-    SELECT *
+    SELECT monthly_limit
     FROM budgets
+    WHERE user_id = %s
     ORDER BY budget_id DESC
     LIMIT 1
     """
 
-    cursor.execute(query)
+    cursor.execute(
+        query,
+        (user_id,)
+    )
 
-    result = cursor.fetchone()
+    budget = cursor.fetchone()
 
     cursor.close()
     conn.close()
 
-    return result
+    if budget:
+        return budget
+
+    return {
+        "monthly_limit": 0
+    }

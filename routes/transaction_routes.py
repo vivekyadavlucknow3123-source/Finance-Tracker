@@ -1,25 +1,50 @@
 """
 Transaction Routes
 """
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    session
+)
 
-from flask import Blueprint
-from flask import jsonify
-from flask import request
+transaction_bp = Blueprint(
+    "transaction_bp",
+    __name__
+)
 
 from services.transaction_service import (
     get_all_transactions,
     add_transaction
 )
-from flask import request
+
 
 from services.update_transaction import (
      update_transaction
 )
-
-transaction_bp = Blueprint(
-    'transaction_bp',
-    __name__
+from services.transaction_service import (
+    get_transactions_by_user
 )
+
+@transaction_bp.route(
+    "/transactions",
+    methods=["GET"]
+)
+def get_transactions():
+
+    user_id = (
+        session["user_id"]
+    )
+
+    transactions = (
+        get_transactions_by_user(
+            user_id
+        )
+    )
+
+    return jsonify(
+        transactions
+    )
 
 
 @transaction_bp.route('/transactions')
@@ -37,6 +62,7 @@ def transactions():
 def create_transaction():
 
     data = request.get_json()
+    data["user_id"] = session["user_id"]
 
     add_transaction(
         user_id=data['user_id'],
