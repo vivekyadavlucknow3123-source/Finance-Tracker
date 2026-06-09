@@ -1,4 +1,11 @@
 // =====================================
+// PART 4 — Success Notifications Function
+// =====================================
+function showMessage(message) {
+    alert(message);
+}
+
+// =====================================
 // UNDO / REDO HISTORY STACKS & CACHE
 // =====================================
 let deletedTransactions = [];
@@ -51,6 +58,12 @@ function populateYears() {
 // Fetch and Render Transactions Table
 // =====================================
 async function loadTransactions() {
+    // PART 7 — Show Loading Indicator
+    const loadingIndicator = document.getElementById("loading");
+    if (loadingIndicator) {
+        loadingIndicator.style.display = "block";
+    }
+
     try {
         const response = await fetch('/transactions');
         const transactions = await response.json();
@@ -86,14 +99,24 @@ async function loadTransactions() {
             return (matchesSearch && matchesType && matchesCategory);
         });
 
+        if (filteredTransactions.length === 0) {
+            container.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    No transactions found.
+                    Add your first transaction.
+                </td>
+            </tr>
+            `;
+            // PART 7 — Hide Loading Indicator before early return
+            if (loadingIndicator) loadingIndicator.style.display = "none";
+            return;
+        }
+
         if (sortValue === "amount-desc") filteredTransactions.sort((a, b) => b.amount - a.amount);
         if (sortValue === "amount-asc") filteredTransactions.sort((a, b) => a.amount - b.amount);
         if (sortValue === "date-desc") filteredTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
         if (sortValue === "date-asc") filteredTransactions.sort((a, b) => new Date(a.transaction_date) - new Date(b.transaction_date));
-
-        if(filteredTransactions && filteredTransactions.length === 0){
-            container.innerHTML = `<tr><td colspan="6" style="text-align:center;">No Transactions Found</td></tr>`;
-        }
 
         filteredTransactions.forEach(transaction => {
             if (recentActivity && recentActivity.children.length < 5) {
@@ -110,21 +133,20 @@ async function loadTransactions() {
                 } else {
                     totalExpense += parseFloat(transaction.amount);
                 }
-                totalAmount +=
-                parseFloat(
-                transaction.amount);
+                totalAmount += parseFloat(transaction.amount);
+                
                 if (transaction.transaction_type === "Income") {
-                    highestIncome =Math.max(highestIncome,parseFloat(transaction.amount ) );
+                    highestIncome = Math.max(highestIncome, parseFloat(transaction.amount));
                 }
 
-                if (transaction.transaction_type=== "Expense") {
-                    highestExpense =Math.max( highestExpense, parseFloat(transaction.amount));
+                if (transaction.transaction_type === "Expense") {
+                    highestExpense = Math.max(highestExpense, parseFloat(transaction.amount));
                 }
-                const category = transaction.category_name ||"Unknown";
-                  if (!categoryTotals[category]) {
+                const category = transaction.category_name || "Unknown";
+                if (!categoryTotals[category]) {
                     categoryTotals[category] = 0;
-                  }
-                categoryTotals[category] +=parseFloat(transaction.amount);
+                }
+                categoryTotals[category] += parseFloat(transaction.amount);
 
                 // ✨ FIX: category_name ko safely pass kiya jaa raha hai
                 container.innerHTML += `
@@ -145,215 +167,75 @@ async function loadTransactions() {
 
         document.getElementById("total-income").innerText = `₹${totalIncome.toFixed(2)}`;
         document.getElementById("total-expense").innerText = `₹${totalExpense.toFixed(2)}`;
+        
         // =====================================
-// DAY 17 STATISTICS
-// =====================================
+        // DAY 17 STATISTICS
+        // =====================================
+        const savings = totalIncome - totalExpense;
+        const averageAmount = filteredTransactions.length > 0 ? totalAmount / filteredTransactions.length : 0;
 
-const savings =
-    totalIncome -
-    totalExpense;
+        document.getElementById("stat-income").innerText = `₹${totalIncome.toFixed(2)}`;
+        document.getElementById("stat-expense").innerText = `₹${totalExpense.toFixed(2)}`;
+        document.getElementById("stat-savings").innerText = `₹${savings.toFixed(2)}`;
+        document.getElementById("stat-transactions").innerText = filteredTransactions.length;
+        document.getElementById("highest-income").innerText = `₹${highestIncome.toFixed(2)}`;
+        document.getElementById("highest-expense").innerText = `₹${highestExpense.toFixed(2)}`;
+        document.getElementById("average-amount").innerText = `₹${averageAmount.toFixed(2)}`;
+        
+        let topCategory = "-";
+        let topAmount = 0;
 
-const averageAmount =
+        for (const category in categoryTotals) {
+            if (categoryTotals[category] > topAmount) {
+                topAmount = categoryTotals[category];
+                topCategory = category;
+            }
+        }
 
-    filteredTransactions.length > 0
-
-    ?
-
-    totalAmount /
-    filteredTransactions.length
-
-    :
-
-    0;
-
-document
-.getElementById(
-    "stat-income"
-)
-.innerText =
-`₹${totalIncome.toFixed(2)}`;
-
-document
-.getElementById(
-    "stat-expense"
-)
-.innerText =
-`₹${totalExpense.toFixed(2)}`;
-
-document
-.getElementById(
-    "stat-savings"
-)
-.innerText =
-`₹${savings.toFixed(2)}`;
-
-document
-.getElementById(
-    "stat-transactions"
-)
-.innerText =
-filteredTransactions.length;
-
-document
-.getElementById(
-    "highest-income"
-)
-.innerText =
-`₹${highestIncome.toFixed(2)}`;
-
-document
-.getElementById(
-    "highest-expense"
-)
-.innerText =
-`₹${highestExpense.toFixed(2)}`;
-
-document
-.getElementById(
-    "average-amount"
-)
-.innerText =
-`₹${averageAmount.toFixed(2)}`;
-let topCategory =
-    "-";
-
-let topAmount =
-    0;
-
-for (
-    const category
-    in categoryTotals
-) {
-
-    if (
-        categoryTotals[
-            category
-        ] > topAmount
-    ) {
-
-        topAmount =
-            categoryTotals[
-                category
-            ];
-
-        topCategory =
-            category;
-    }
-}
-
-document
-.getElementById(
-    "top-category"
-)
-.innerText =
-topCategory;
+        document.getElementById("top-category").innerText = topCategory;
 
         try {
             const budget = await loadBudget();
             const remaining = budget - totalExpense;
             let budgetUsage = 0;
             if (budget > 0) {
-             budgetUsage = (totalExpense / budget) * 100;
+                budgetUsage = (totalExpense / budget) * 100;
             }
-            const statusElement =
-
-             document.getElementById("budget-status");
-            const alertElement =document.getElementById("budget-alert");
+            
+            const statusElement = document.getElementById("budget-status");
+            const alertElement = document.getElementById("budget-alert");
             const percentUsed = (totalExpense / budget) * 100;
             const progressBar = document.getElementById("budget-progress");
-            if (
-    budgetUsage < 50
-) {
-
-    statusElement.innerText =
-    "Safe Zone";
-
-    alertElement.innerHTML =
-    `
-    ✅ Great!
-    Your spending is under control.
-    `;
-
-    alertElement.style.background =
-    "#d4edda";
-}else if (
-    budgetUsage >= 50
-    &&
-    budgetUsage < 80
-) {
-
-    statusElement.innerText =
-    "Warning Zone";
-
-    alertElement.innerHTML =
-    `
-    ⚠ You have used
-    ${budgetUsage.toFixed(0)}%
-    of your budget.
-    `;
-
-    alertElement.style.background =
-    "#fff3cd";
-}else if (
-    budgetUsage >= 80
-    &&
-    budgetUsage <= 100
-) {
-
-    statusElement.innerText =
-    "Critical Zone";
-
-    alertElement.innerHTML =
-    `
-    🚨 Budget almost exhausted.
-    ${budgetUsage.toFixed(0)}%
-    used.
-    `;
-
-    alertElement.style.background =
-    "#f8d7da";
-}else {
-
-    statusElement.innerText =
-    "Budget Exceeded";
-
-    alertElement.innerHTML =
-    `
-    ❌ Budget exceeded.
-
-    Overspent by ₹
-    ${Math.abs(
-        remaining
-    ).toFixed(2)}
-    `;
-
-    alertElement.style.background =
-    "#dc3545";
-
-    alertElement.style.color =
-    "white";
-}
+            
+            // =====================================
+            // PART 2 — Better Budget Empty State
+            // =====================================
+            if (budget === 0) {
+                document.getElementById("budget-alert").innerHTML = `
+                No budget configured.
+                Create a budget to start tracking spending.
+                `;
+            } else if (budgetUsage < 50) {
+                statusElement.innerText = "Safe Zone";
+                alertElement.innerHTML = `✅ Great! Your spending is under control.`;
+                alertElement.style.background = "#d4edda";
+            } else if (budgetUsage >= 50 && budgetUsage < 80) {
+                statusElement.innerText = "Warning Zone";
+                alertElement.innerHTML = `⚠ You have used ${budgetUsage.toFixed(0)}% of your budget.`;
+                alertElement.style.background = "#fff3cd";
+            } else if (budgetUsage >= 80 && budgetUsage <= 100) {
+                statusElement.innerText = "Critical Zone";
+                alertElement.innerHTML = `🚨 Budget almost exhausted. ${budgetUsage.toFixed(0)}% used.`;
+                alertElement.style.background = "#f8d7da";
+            } else {
+                statusElement.innerText = "Budget Exceeded";
+                alertElement.innerHTML = `❌ Budget exceeded. Overspent by ₹${Math.abs(remaining).toFixed(2)}`;
+                alertElement.style.background = "#dc3545";
+                alertElement.style.color = "white";
+            }
+            
             if (progressBar && budget > 0) {
                 progressBar.style.width = `${percentUsed}%`;
-                if (
-    budgetUsage < 50
-) {
-
-    progressBar.style.background =
-    "green";
-}
-else if (
-    budgetUsage < 80
-) {
-
-    progressBar.style.background =
-    "orange";
-}
-else {
-
-    progressBar.style.background =
-    "red";
-}
                 if (percentUsed < 70) progressBar.style.background = "green";
                 else if (percentUsed < 90) progressBar.style.background = "orange";
                 else progressBar.style.background = "red";
@@ -372,6 +254,11 @@ else {
 
     } catch (error) {
         console.error("Transaction Load Error:", error);
+    } finally {
+        // PART 7 — Hide Loading Indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = "none";
+        }
     }
 }
 
@@ -398,6 +285,9 @@ if (form) {
                 body: JSON.stringify(transaction)
             });
 
+            // PART 4 — Transaction Added Notification
+            showMessage("Transaction Added Successfully");
+
             form.reset();
             loadTransactions();
             loadCategoryChart();
@@ -412,8 +302,11 @@ if (form) {
 // Delete Transaction Function
 // =====================================
 async function deleteTransaction(id, description, amount, category_name, transaction_type, transaction_date) {
-    const confirmDelete = confirm("Delete this transaction?");
-    if (!confirmDelete) return;
+    // PART 3 — Delete Confirmation Check
+    const confirmed = confirm("Delete this transaction?");
+    if (!confirmed) {
+        return;
+    }
 
     try {
         deletedTransactions.push({
@@ -428,6 +321,9 @@ async function deleteTransaction(id, description, amount, category_name, transac
         redoTransactions = [];
 
         await fetch(`/transactions/${id}`, { method: "DELETE" });
+
+        // PART 4 — Transaction Deleted Notification
+        showMessage("Transaction Deleted Successfully");
 
         loadTransactions();
         loadCategoryChart();
@@ -519,6 +415,9 @@ async function editTransaction(id, oldDescription, oldAmount) {
                 amount: parseFloat(newAmount)
             })
         });
+
+        // PART 4 — Transaction Updated Notification
+        showMessage("Transaction Updated Successfully");
 
         loadTransactions();
         loadCategoryChart();

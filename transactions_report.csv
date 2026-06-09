@@ -1,4 +1,0 @@
-Transaction ID,User ID,Category ID,Amount,Type,Description,Date
-17,12,1,300.00,Expense,Transport,2026-06-03
-16,12,1,500.00,Expense,Food,2026-06-02
-15,12,1,10000.00,Income,Salary,2026-06-01

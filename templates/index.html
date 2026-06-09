@@ -30,6 +30,11 @@
 
     <div class="dashboard-container">
         
+        <div class="dashboard-header">
+            <h1>Finance Tracker</h1>
+            <p>Manage your finances smarter.</p>
+        </div>
+        
         <div class="summary-container">
             <div class="summary-card">
                 <h3>Total Income</h3>
@@ -42,11 +47,7 @@
             <div class="summary-card">
                 <h3>Remaining Budget</h3>
                 <h2 id="remaining-budget">₹0</h2>
-                <!-- =====================================
-DAY 18 BUDGET HEALTH
-===================================== -->
-
-<div class="budget-health-card">
+                <div class="budget-health-card">
 
     <h3>
         Budget Status
@@ -142,11 +143,7 @@ DAY 18 BUDGET HEALTH
             <button onclick="exportPDF()">Export PDF</button>
         </div>
 
-        <!-- =====================================
-DAY 17 STATISTICS
-===================================== -->
-
-<div class="stats-container">
+        <div class="stats-container">
 
     <div class="stat-card">
         <h3>Total Income</h3>
@@ -190,11 +187,7 @@ DAY 17 STATISTICS
         <h3>Top Category</h3>
         <p id="top-category">-</p>
     </div>
-    <!-- =====================================
-INSIGHT CARD
-===================================== -->
-
-<div class="insight-card">
+    <div class="insight-card">
 
     <h3>
         Financial Insight
@@ -227,6 +220,8 @@ INSIGHT CARD
             <ul id="recent-activity"></ul>
         </div>
 
+        <div id="loading">Loading...</div>
+
         <div class="table-container">
             <table>
                 <thead>
@@ -244,8 +239,9 @@ INSIGHT CARD
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <footer>FinanceTracker © 2026</footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
