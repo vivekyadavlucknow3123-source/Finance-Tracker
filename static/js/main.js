@@ -71,6 +71,10 @@ async function loadTransactions() {
 
         let totalIncome = 0;
         let totalExpense = 0;
+        let highestIncome = 0;
+        let highestExpense = 0;
+        let totalAmount = 0;
+        let categoryTotals = {};
 
         const selectedYear = document.getElementById('year-select')?.value || '';
         const selectedMonth = document.getElementById('month-select')?.value || '';
@@ -106,6 +110,21 @@ async function loadTransactions() {
                 } else {
                     totalExpense += parseFloat(transaction.amount);
                 }
+                totalAmount +=
+                parseFloat(
+                transaction.amount);
+                if (transaction.transaction_type === "Income") {
+                    highestIncome =Math.max(highestIncome,parseFloat(transaction.amount ) );
+                }
+
+                if (transaction.transaction_type=== "Expense") {
+                    highestExpense =Math.max( highestExpense, parseFloat(transaction.amount));
+                }
+                const category = transaction.category_name ||"Unknown";
+                  if (!categoryTotals[category]) {
+                    categoryTotals[category] = 0;
+                  }
+                categoryTotals[category] +=parseFloat(transaction.amount);
 
                 // ✨ FIX: category_name ko safely pass kiya jaa raha hai
                 container.innerHTML += `
@@ -126,6 +145,108 @@ async function loadTransactions() {
 
         document.getElementById("total-income").innerText = `₹${totalIncome.toFixed(2)}`;
         document.getElementById("total-expense").innerText = `₹${totalExpense.toFixed(2)}`;
+        // =====================================
+// DAY 17 STATISTICS
+// =====================================
+
+const savings =
+    totalIncome -
+    totalExpense;
+
+const averageAmount =
+
+    filteredTransactions.length > 0
+
+    ?
+
+    totalAmount /
+    filteredTransactions.length
+
+    :
+
+    0;
+
+document
+.getElementById(
+    "stat-income"
+)
+.innerText =
+`₹${totalIncome.toFixed(2)}`;
+
+document
+.getElementById(
+    "stat-expense"
+)
+.innerText =
+`₹${totalExpense.toFixed(2)}`;
+
+document
+.getElementById(
+    "stat-savings"
+)
+.innerText =
+`₹${savings.toFixed(2)}`;
+
+document
+.getElementById(
+    "stat-transactions"
+)
+.innerText =
+filteredTransactions.length;
+
+document
+.getElementById(
+    "highest-income"
+)
+.innerText =
+`₹${highestIncome.toFixed(2)}`;
+
+document
+.getElementById(
+    "highest-expense"
+)
+.innerText =
+`₹${highestExpense.toFixed(2)}`;
+
+document
+.getElementById(
+    "average-amount"
+)
+.innerText =
+`₹${averageAmount.toFixed(2)}`;
+let topCategory =
+    "-";
+
+let topAmount =
+    0;
+
+for (
+    const category
+    in categoryTotals
+) {
+
+    if (
+        categoryTotals[
+            category
+        ] > topAmount
+    ) {
+
+        topAmount =
+            categoryTotals[
+                category
+            ];
+
+        topCategory =
+            category;
+    }
+}
+
+document
+.getElementById(
+    "top-category"
+)
+.innerText =
+topCategory;
 
         try {
             const budget = await loadBudget();
