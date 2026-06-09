@@ -251,11 +251,109 @@ topCategory;
         try {
             const budget = await loadBudget();
             const remaining = budget - totalExpense;
+            let budgetUsage = 0;
+            if (budget > 0) {
+             budgetUsage = (totalExpense / budget) * 100;
+            }
+            const statusElement =
+
+             document.getElementById("budget-status");
+            const alertElement =document.getElementById("budget-alert");
             const percentUsed = (totalExpense / budget) * 100;
             const progressBar = document.getElementById("budget-progress");
+            if (
+    budgetUsage < 50
+) {
 
+    statusElement.innerText =
+    "Safe Zone";
+
+    alertElement.innerHTML =
+    `
+    ✅ Great!
+    Your spending is under control.
+    `;
+
+    alertElement.style.background =
+    "#d4edda";
+}else if (
+    budgetUsage >= 50
+    &&
+    budgetUsage < 80
+) {
+
+    statusElement.innerText =
+    "Warning Zone";
+
+    alertElement.innerHTML =
+    `
+    ⚠ You have used
+    ${budgetUsage.toFixed(0)}%
+    of your budget.
+    `;
+
+    alertElement.style.background =
+    "#fff3cd";
+}else if (
+    budgetUsage >= 80
+    &&
+    budgetUsage <= 100
+) {
+
+    statusElement.innerText =
+    "Critical Zone";
+
+    alertElement.innerHTML =
+    `
+    🚨 Budget almost exhausted.
+    ${budgetUsage.toFixed(0)}%
+    used.
+    `;
+
+    alertElement.style.background =
+    "#f8d7da";
+}else {
+
+    statusElement.innerText =
+    "Budget Exceeded";
+
+    alertElement.innerHTML =
+    `
+    ❌ Budget exceeded.
+
+    Overspent by ₹
+    ${Math.abs(
+        remaining
+    ).toFixed(2)}
+    `;
+
+    alertElement.style.background =
+    "#dc3545";
+
+    alertElement.style.color =
+    "white";
+}
             if (progressBar && budget > 0) {
                 progressBar.style.width = `${percentUsed}%`;
+                if (
+    budgetUsage < 50
+) {
+
+    progressBar.style.background =
+    "green";
+}
+else if (
+    budgetUsage < 80
+) {
+
+    progressBar.style.background =
+    "orange";
+}
+else {
+
+    progressBar.style.background =
+    "red";
+}
                 if (percentUsed < 70) progressBar.style.background = "green";
                 else if (percentUsed < 90) progressBar.style.background = "orange";
                 else progressBar.style.background = "red";
