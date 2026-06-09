@@ -21,6 +21,7 @@ from services.auth_service import (
 from werkzeug.security import (
     check_password_hash
 )
+from flask import redirect
 
 # Create Blueprint
 auth_bp = Blueprint(

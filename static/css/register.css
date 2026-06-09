@@ -1,0 +1,168 @@
+/* =====================================
+GLOBAL STYLES & RESET
+===================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* =====================================
+CENTERED CARD CONTAINER
+===================================== */
+.registration-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* =====================================
+CARD HEADER
+===================================== */
+.card-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.card-header h1 {
+    font-size: 28px;
+    color: #1f2937;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.card-header p {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* =====================================
+FORM FIELDS & INPUT TEXTBOXES
+===================================== */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #1f2937;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Input Focus Glow effect */
+.input-group input:focus {
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* =====================================
+REGISTER BUTTON WITH ANIMATIONS
+===================================== */
+.register-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Hover Scale & Lift animation */
+.register-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+}
+
+/* Active Press Click effect */
+.register-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* =====================================
+CARD FOOTER & LINK ANIMATIONS
+===================================== */
+.card-footer {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.card-footer p {
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.login-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+/* Link Hover shift animation */
+.login-link:hover {
+    color: #1d4ed8;
+    animation: bounceLink 0.5s ease;
+}
+
+/* Smooth expanding custom underline effect */
+.login-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #1d4ed8;
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+
+.login-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* =====================================
+KEYFRAMES ANIMATIONS STORAGE
+===================================== */
+@keyframes bounceLink {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}

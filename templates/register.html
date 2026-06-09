@@ -1,44 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
 </head>
-
 <body>
 
-<h1>Register Page Working</h1>
+    <div class="registration-card">
+        
+        <div class="card-header">
+            <h1>Create Account</h1>
+            <p>Get started with your Finance Tracker</p>
+        </div>
 
-<form method="POST">
+        <form method="POST">
 
-    <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        required>
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    name="username" 
+                    placeholder="Username" 
+                    required>
+            </div>
 
-    <br><br>
+            <div class="input-group">
+                <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="Email Address" 
+                    required>
+            </div>
 
-    <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        required>
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Password" 
+                    required>
+            </div>
 
-    <br><br>
+            <button type="submit" class="register-btn">
+                Register
+            </button>
 
-    <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        required>
+        </form>
 
-    <br><br>
+        <div class="card-footer">
+            <p>Already have an account? <a href="/login" class="login-link">Login Here</a></p>
+        </div>
 
-    <button type="submit">
-        Register
-    </button>
-
-</form>
+    </div>
 
 </body>
 </html>
