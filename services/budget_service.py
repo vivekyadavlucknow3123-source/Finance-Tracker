@@ -33,3 +33,58 @@ def get_budget(user_id):
     return {
         "monthly_limit": 0
     }
+def save_budget(
+
+    user_id,
+
+    category_id,
+
+    monthly_limit,
+
+    budget_type
+
+):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    query = """
+    INSERT INTO budgets
+    (
+        user_id,
+        category_id,
+        monthly_limit,
+        budget_type
+    )
+    VALUES
+    (
+        %s,
+        %s,
+        %s,
+        %s
+    )
+    """
+
+    cursor.execute(
+
+        query,
+
+        (
+
+            user_id,
+
+            category_id,
+
+            monthly_limit,
+
+            budget_type
+
+        )
+    )
+
+    conn.commit()
+
+    cursor.close()
+
+    conn.close()

@@ -99,3 +99,28 @@ CREATE TABLE IF NOT EXISTS budgets (
     FOREIGN KEY (user_id)
     REFERENCES users(user_id)
 );
+/*reset token */
+CREATE TABLE password_resets (
+
+    id INT AUTO_INCREMENT
+    PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    token VARCHAR(255)
+    NOT NULL,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE email_otps
+(
+    otp_id INT PRIMARY KEY AUTO_INCREMENT,
+
+    email VARCHAR(100),
+
+    otp VARCHAR(10),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

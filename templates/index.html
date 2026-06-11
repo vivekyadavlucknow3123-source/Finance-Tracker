@@ -34,6 +34,35 @@
             <h1>Finance Tracker</h1>
             <p>Manage your finances smarter.</p>
         </div>
+        <div class="card">
+<!-- Budget Setting Section -->
+    <h2>Set Budget</h2>
+
+    <select id="budgetType">
+
+        <option value="income">
+            Use Income As Budget
+        </option>
+
+        <option value="custom">
+            Custom Budget
+        </option>
+
+    </select>
+
+    <input
+        type="number"
+        id="budgetInput"
+        placeholder="Enter Budget"
+    >
+
+    <button id="saveBudgetBtn">
+
+        Save Budget
+
+    </button>
+
+</div>
         
         <div class="summary-container">
             <div class="summary-card">
@@ -220,6 +249,7 @@
             <ul id="recent-activity"></ul>
         </div>
 
+
         <div id="loading">Loading...</div>
 
         <div class="table-container">
@@ -238,6 +268,127 @@
             </table>
         </div>
     </div>
+    <!-- AI Dashboard Section -->
+    <section id="aiDashboard">
+
+    <h1>
+        AI Finance Dashboard
+    </h1>
+
+    <div class="ai-grid">
+
+        <div class="card">
+
+            <h2>
+                Health Score
+            </h2>
+
+            <h1 id="healthScore">
+                0
+            </h1>
+
+            <p id="healthStatus">
+                Loading...
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h2>
+                AI Insight
+            </h2>
+
+            <p id="aiInsight">
+                Loading...
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h2>
+                Budget Advice
+            </h2>
+
+            <p id="budgetAdvice">
+                Loading...
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h2>
+                Monthly Report
+            </h2>
+
+            <div id="monthlyReport">
+
+                Loading...
+
+            </div>
+
+        </div>
+        <div class="card">
+
+    <h2>
+
+        Expense Forecast
+
+    </h2>
+
+    <h1
+    id="forecastAmount">
+
+        ₹0
+
+    </h1>
+
+    </div>
+
+    </div>
+    <div class="card">
+
+    <h2>
+        Smart Alerts
+    </h2>
+
+    <div
+    id="smartAlerts">
+
+        Loading...
+
+    </div>
+
+</div>
+
+</section>
+<!-- Chatbot Section -->
+<div class="card">
+
+    <h2>
+        Finance AI Chat
+    </h2>
+
+    <input
+        type="text"
+        id="chatInput"
+        placeholder="Ask AI..."
+    >
+
+    <button
+        onclick="sendMessage()"
+    >
+        Send
+    </button>
+
+    <p
+        id="chatResponse"
+    >
+    </p>
+
+</div>
 
     <footer>FinanceTracker © 2026</footer>
 

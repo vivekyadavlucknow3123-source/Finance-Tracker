@@ -16,6 +16,22 @@ let categoryChart = null;
 let monthlyChart = null;
 
 // =====================================
+// Step 6: Load AI Insight
+// =====================================
+async function loadAIInsights() {
+    try {
+        const response = await fetch("/ai/insights");
+        const data = await response.json();
+        const aiInsightEl = document.getElementById("aiInsight");
+        if (aiInsightEl) {
+            aiInsightEl.innerText = data.message;
+        }
+    } catch (error) {
+        console.error("AI Insights Load Error:", error);
+    }
+}
+
+// =====================================
 // Load Categories Dropdowns
 // =====================================
 async function loadCategories() {
@@ -24,7 +40,7 @@ async function loadCategories() {
         globalCategories = await response.json(); 
         
         const dropdown = document.getElementById('category_id');
-        dropdown.innerHTML = '';
+        if (dropdown) dropdown.innerHTML = '';
 
         const categoryFilter = document.getElementById("category-filter");
         if(categoryFilter) {
@@ -35,7 +51,9 @@ async function loadCategories() {
             if(categoryFilter){
                 categoryFilter.innerHTML += `<option value="${category.category_name}">${category.category_name}</option>`;
             }
-            dropdown.innerHTML += `<option value="${category.category_id}">${category.category_name}</option>`;
+            if (dropdown) {
+                dropdown.innerHTML += `<option value="${category.category_id}">${category.category_name}</option>`;
+            }
         });
     } catch (error) {
         console.error("Category Load Error:", error);
@@ -77,7 +95,7 @@ async function loadTransactions() {
         if (transactionCount) transactionCount.innerText = transactions.length;
 
         const container = document.getElementById('transaction-list');
-        container.innerHTML = '';
+        if (container) container.innerHTML = '';
 
         const recentActivity = document.getElementById("recent-activity");
         if (recentActivity) recentActivity.innerHTML = "";
@@ -100,14 +118,15 @@ async function loadTransactions() {
         });
 
         if (filteredTransactions.length === 0) {
-            container.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    No transactions found.
-                    Add your first transaction.
-                </td>
-            </tr>
-            `;
+            if (container) {
+                container.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center;">
+                        No transactions found. Add your first transaction.
+                    </td>
+                </tr>
+                `;
+            }
             // PART 7 — Hide Loading Indicator before early return
             if (loadingIndicator) loadingIndicator.style.display = "none";
             return;
@@ -148,25 +167,28 @@ async function loadTransactions() {
                 }
                 categoryTotals[category] += parseFloat(transaction.amount);
 
-                // ✨ FIX: category_name ko safely pass kiya jaa raha hai
-                container.innerHTML += `
-                    <tr>
-                        <td>${transaction.transaction_id}</td>
-                        <td>${transaction.transaction_date}</td>
-                        <td>${transaction.description}</td>
-                        <td>${transaction.transaction_type}</td>
-                        <td>₹${transaction.amount}</td>
-                        <td>
-                            <button onclick="editTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount})">Edit</button>
-                            <button onclick="deleteTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount}, '${transaction.category_name}', '${transaction.transaction_type}', '${transaction.transaction_date}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                if (container) {
+                    container.innerHTML += `
+                        <tr>
+                            <td>${transaction.transaction_id}</td>
+                            <td>${transaction.transaction_date}</td>
+                            <td>${transaction.description}</td>
+                            <td>${transaction.transaction_type}</td>
+                            <td>₹${transaction.amount}</td>
+                            <td>
+                                <button onclick="editTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount})">Edit</button>
+                                <button onclick="deleteTransaction(${transaction.transaction_id}, '${transaction.description}', ${transaction.amount}, '${transaction.category_name}', '${transaction.transaction_type}', '${transaction.transaction_date}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }
             }
         });
 
-        document.getElementById("total-income").innerText = `₹${totalIncome.toFixed(2)}`;
-        document.getElementById("total-expense").innerText = `₹${totalExpense.toFixed(2)}`;
+        const incomeEl = document.getElementById("total-income");
+        const expenseEl = document.getElementById("total-expense");
+        if (incomeEl) incomeEl.innerText = `₹${totalIncome.toFixed(2)}`;
+        if (expenseEl) expenseEl.innerText = `₹${totalExpense.toFixed(2)}`;
         
         // =====================================
         // DAY 17 STATISTICS
@@ -174,13 +196,22 @@ async function loadTransactions() {
         const savings = totalIncome - totalExpense;
         const averageAmount = filteredTransactions.length > 0 ? totalAmount / filteredTransactions.length : 0;
 
-        document.getElementById("stat-income").innerText = `₹${totalIncome.toFixed(2)}`;
-        document.getElementById("stat-expense").innerText = `₹${totalExpense.toFixed(2)}`;
-        document.getElementById("stat-savings").innerText = `₹${savings.toFixed(2)}`;
-        document.getElementById("stat-transactions").innerText = filteredTransactions.length;
-        document.getElementById("highest-income").innerText = `₹${highestIncome.toFixed(2)}`;
-        document.getElementById("highest-expense").innerText = `₹${highestExpense.toFixed(2)}`;
-        document.getElementById("average-amount").innerText = `₹${averageAmount.toFixed(2)}`;
+        const statInc = document.getElementById("stat-income");
+        const statExp = document.getElementById("stat-expense");
+        const statSav = document.getElementById("stat-savings");
+        const statCount = document.getElementById("stat-transactions");
+        const highInc = document.getElementById("highest-income");
+        const highExp = document.getElementById("highest-expense");
+        const avgAmt = document.getElementById("average-amount");
+        const topCat = document.getElementById("top-category");
+
+        if (statInc) statInc.innerText = `₹${totalIncome.toFixed(2)}`;
+        if (statExp) statExp.innerText = `₹${totalExpense.toFixed(2)}`;
+        if (statSav) statSav.innerText = `₹${savings.toFixed(2)}`;
+        if (statCount) statCount.innerText = filteredTransactions.length;
+        if (highInc) highInc.innerText = `₹${highestIncome.toFixed(2)}`;
+        if (highExp) highExp.innerText = `₹${highestExpense.toFixed(2)}`;
+        if (avgAmt) avgAmt.innerText = `₹${averageAmount.toFixed(2)}`;
         
         let topCategory = "-";
         let topAmount = 0;
@@ -192,7 +223,7 @@ async function loadTransactions() {
             }
         }
 
-        document.getElementById("top-category").innerText = topCategory;
+        if (topCat) topCat.innerText = topCategory;
 
         try {
             const budget = await loadBudget();
@@ -210,28 +241,27 @@ async function loadTransactions() {
             // =====================================
             // PART 2 — Better Budget Empty State
             // =====================================
-            if (budget === 0) {
-                document.getElementById("budget-alert").innerHTML = `
-                No budget configured.
-                Create a budget to start tracking spending.
-                `;
-            } else if (budgetUsage < 50) {
-                statusElement.innerText = "Safe Zone";
-                alertElement.innerHTML = `✅ Great! Your spending is under control.`;
-                alertElement.style.background = "#d4edda";
-            } else if (budgetUsage >= 50 && budgetUsage < 80) {
-                statusElement.innerText = "Warning Zone";
-                alertElement.innerHTML = `⚠ You have used ${budgetUsage.toFixed(0)}% of your budget.`;
-                alertElement.style.background = "#fff3cd";
-            } else if (budgetUsage >= 80 && budgetUsage <= 100) {
-                statusElement.innerText = "Critical Zone";
-                alertElement.innerHTML = `🚨 Budget almost exhausted. ${budgetUsage.toFixed(0)}% used.`;
-                alertElement.style.background = "#f8d7da";
-            } else {
-                statusElement.innerText = "Budget Exceeded";
-                alertElement.innerHTML = `❌ Budget exceeded. Overspent by ₹${Math.abs(remaining).toFixed(2)}`;
-                alertElement.style.background = "#dc3545";
-                alertElement.style.color = "white";
+            if (alertElement) {
+                if (budget === 0) {
+                    alertElement.innerHTML = `No budget configured. Create a budget to start tracking spending.`;
+                } else if (budgetUsage < 50) {
+                    if (statusElement) statusElement.innerText = "Safe Zone";
+                    alertElement.innerHTML = `✅ Great! Your spending is under control.`;
+                    alertElement.style.background = "#d4edda";
+                } else if (budgetUsage >= 50 && budgetUsage < 80) {
+                    if (statusElement) statusElement.innerText = "Warning Zone";
+                    alertElement.innerHTML = `⚠ You have used ${budgetUsage.toFixed(0)}% of your budget.`;
+                    alertElement.style.background = "#fff3cd";
+                } else if (budgetUsage >= 80 && budgetUsage <= 100) {
+                    if (statusElement) statusElement.innerText = "Critical Zone";
+                    alertElement.innerHTML = `🚨 Budget almost exhausted. ${budgetUsage.toFixed(0)}% used.`;
+                    alertElement.style.background = "#f8d7da";
+                } else {
+                    if (statusElement) statusElement.innerText = "Budget Exceeded";
+                    alertElement.innerHTML = `❌ Budget exceeded. Overspent by ₹${Math.abs(remaining).toFixed(2)}`;
+                    alertElement.style.background = "#dc3545";
+                    alertElement.style.color = "white";
+                }
             }
             
             if (progressBar && budget > 0) {
@@ -241,9 +271,10 @@ async function loadTransactions() {
                 else progressBar.style.background = "red";
             }
             
-            document.getElementById('remaining-budget').innerText = `₹${remaining.toFixed(2)}`;
+            const remainingBudgetEl = document.getElementById('remaining-budget');
+            if (remainingBudgetEl) remainingBudgetEl.innerText = `₹${remaining.toFixed(2)}`;
+            
             const warning = document.getElementById('budget-warning');
-
             if (warning) {
                 warning.innerText = (remaining < 0) ? "⚠ Budget Exceeded" : "";
             }
@@ -255,7 +286,7 @@ async function loadTransactions() {
     } catch (error) {
         console.error("Transaction Load Error:", error);
     } finally {
-        // PART 7 — Hide Loading Indicator
+        // PART 7 — Hide Loading Indicator safely
         if (loadingIndicator) {
             loadingIndicator.style.display = "none";
         }
@@ -344,7 +375,6 @@ async function undoDelete() {
 
     const transactionToRestore = deletedTransactions.pop();
 
-    // ✨ FIX: Global array se real category_id dhoondh raha hai taaki backend crash na ho
     const matchedCategory = globalCategories.find(c => c.category_name === transactionToRestore.category_name);
     const resolvedCategoryId = matchedCategory ? matchedCategory.category_id : (globalCategories[0]?.category_id || 1);
 
@@ -502,18 +532,364 @@ document.getElementById("type-filter")?.addEventListener("change", loadTransacti
 document.getElementById("category-filter")?.addEventListener("change", loadTransactions);
 
 document.getElementById("reset-filters")?.addEventListener("click", () => {
-    document.getElementById("search-input").value = "";
-    document.getElementById("sort-select").value = "";
-    document.getElementById("type-filter").value = "";
-    document.getElementById("category-filter").value = "";
+    const searchInp = document.getElementById("search-input");
+    const sortSel = document.getElementById("sort-select");
+    const typeFilt = document.getElementById("type-filter");
+    const catFilt = document.getElementById("category-filter");
+
+    if (searchInp) searchInp.value = "";
+    if (sortSel) sortSel.value = "";
+    if (typeFilt) typeFilt.value = "";
+    if (catFilt) catFilt.value = "";
     loadTransactions();
 });
 
+/* ✨ CRITICAL ERROR FIX: Added conditional existence check loops down here */
+const budgetType = document.getElementById("budgetType");
+const budgetInput = document.getElementById("budgetInput");
+
+if (budgetType && budgetInput) {
+    budgetType.addEventListener("change", () => {
+        if(budgetType.value === "income"){
+            budgetInput.style.display = "none";
+        } else {
+            budgetInput.style.display = "block";
+        }
+    });
+}
+
+const saveBudgetBtn = document.getElementById("saveBudgetBtn");
+if (saveBudgetBtn) {
+    saveBudgetBtn.addEventListener("click", saveBudget);
+}
+
+async function saveBudget(){
+    const budgetTypeEl = document.getElementById("budgetType");
+    const budgetInputEl = document.getElementById("budgetInput");
+
+    if (!budgetTypeEl || !budgetInputEl) return;
+
+    const budgetTypeValue = budgetTypeEl.value;
+    const monthlyLimit = budgetInputEl.value;
+
+    console.log("Budget = ", monthlyLimit);
+
+    try {
+        await fetch("/budget", {
+            method:"POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body:JSON.stringify({
+                budget_type: budgetTypeValue,
+                monthly_limit: monthlyLimit
+            })
+        });
+        alert("Budget Saved");
+    } catch(error) {
+        console.error("Save Budget Error:", error);
+    }
+}
+
 // =====================================
+// ✨ FIXED: Secure DOM checking functions
+// =====================================
+async function loadBudgetAdvice() {
+    try {
+        const response = await fetch("/ai/recommendations");
+        const data = await response.json();
+        const adviceElement = document.getElementById("budgetAdvice");
+
+        // FIX: Ensure the element exists before trying to modify innerText
+        if (adviceElement) {
+            if (data.recommendations && data.recommendations.length > 0) {
+                adviceElement.innerText = data.recommendations[0];
+            } else {
+                adviceElement.innerText = "No advice calculated yet.";
+            }
+        }
+    } catch (error) {
+        console.error("Budget Advice Load Error:", error);
+    }
+}
+
+async function loadHealthScore() {
+    try {
+        const response = await fetch("/ai/health");
+        const data = await response.json();
+
+        const scoreElement = document.getElementById("healthScore");
+        const statusElement = document.getElementById("healthStatus");
+
+        // FIX: Safe multi-element verification checks
+        if (scoreElement) {
+            scoreElement.innerText = data.score;
+        }
+        if (statusElement) {
+            statusElement.innerText = data.status;
+        }
+    } catch (error) {
+        console.error("Health Score Load Error:", error);
+    }
+}
+async function
+loadMonthlyReport(){
+
+    const response =
+
+    await fetch(
+        "/ai/report"
+    );
+
+    const data =
+
+    await response.json();
+
+    document
+    .getElementById(
+        "monthlyReport"
+    )
+    .innerHTML =
+
+    `
+    Income:
+    ₹${data.income}
+    <br>
+
+    Expense:
+    ₹${data.expense}
+    <br>
+
+    Savings:
+    ₹${data.savings}
+    <br>
+
+    Top Category:
+    ${data.top_category}
+    <br>
+
+    Health Score:
+    ${data.health_score}
+    <br>
+
+    Status:
+    ${data.health_status}
+    `;
+}
+async function
+loadAIDashboard(){
+
+    const response =
+
+    await fetch(
+        "/ai/dashboard"
+    );
+
+    const data =
+
+    await response.json();
+
+    document
+    .getElementById(
+        "healthScore"
+    )
+    .innerText =
+
+    data.health.score;
+
+    document
+    .getElementById(
+        "healthStatus"
+    )
+    .innerText =
+
+    data.health.status;
+
+    document
+    .getElementById(
+        "aiInsight"
+    )
+    .innerText =
+
+    data.insights.message;
+
+    document
+    .getElementById(
+        "budgetAdvice"
+    )
+    .innerText =
+
+    data.recommendations
+        .recommendations
+        .join(
+            " | "
+        );
+
+}
+async function
+sendMessage(){
+
+    const message =
+
+    document
+    .getElementById(
+        "chatInput"
+    )
+    .value;
+
+    const response =
+
+    await fetch(
+
+        "/ai/chat",
+
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":
+                "application/json"
+
+            },
+
+            body:JSON.stringify({
+
+                message
+
+            })
+
+        }
+
+    );
+
+    const data =
+
+    await response.json();
+
+    document
+    .getElementById(
+        "chatResponse"
+    )
+    .innerText =
+
+    data.reply;
+
+}
+async function
+loadForecast(){
+
+    const response =
+
+    await fetch(
+        "/ai/forecast"
+    );
+
+    const data =
+
+    await response.json();
+
+    document
+    .getElementById(
+        "forecastAmount"
+    )
+    .innerText =
+
+    "₹" +
+    data.forecast;
+
+}
+async function
+loadAlerts(){
+
+    const response =
+
+    await fetch(
+        "/ai/alerts"
+    );
+
+    const data =
+
+    await response.json();
+
+    document
+    .getElementById(
+        "smartAlerts"
+    )
+    .innerHTML =
+
+    data.alerts
+    .map(
+        alert =>
+        `<p>${alert}</p>`
+    )
+    .join("");
+
+}
+
+async function
+forgotPassword(){
+
+    const email =
+
+    document
+    .getElementById(
+        "resetEmail"
+    )
+    .value;
+
+    const response =
+
+    await fetch(
+
+        "/forgot-password",
+
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":
+                "application/json"
+
+            },
+
+            body:JSON.stringify({
+
+                email
+
+            })
+
+        }
+
+    );
+
+    const data =
+
+    await response.json();
+
+    alert(
+        data.message
+    );
+}
+
+// =====================================
+// Step 7: Call It On Page Load
 // Orchestration / Initialization
 // =====================================
-populateYears();
-loadCategories();
-loadTransactions();
-loadCategoryChart();
-loadMonthlyChart();
+document.addEventListener("DOMContentLoaded", () => {
+    populateYears();
+    loadCategories();
+    loadTransactions();
+    loadCategoryChart();
+    loadMonthlyChart();
+    loadAIInsights();
+    loadBudgetAdvice();
+    loadHealthScore();
+    loadMonthlyReport();
+    loadAIDashboard();
+    loadForecast();
+});
+loadAlerts();

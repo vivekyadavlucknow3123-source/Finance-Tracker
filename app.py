@@ -21,6 +21,9 @@ from routes.pdf_routes import (
 from routes.auth_routes import (
     auth_bp
 )
+from routes.ai_routes import (
+    ai_bp
+)
 
 app = Flask(__name__)
 app.secret_key = "FinanceTrackerSecretKey"
@@ -56,6 +59,9 @@ app.register_blueprint(category_bp)
 
 app.register_blueprint(
     analytics_bp
+)
+app.register_blueprint(
+    ai_bp
 )
 
 
