@@ -7,9 +7,9 @@ def send_reset_email(
     reset_link
 ):
 
-    sender_email = "vivek.yadavcse23@smslucknow.ac.in"#your email address
+    sender_email = "Email address"#your email address
 
-    app_password = "amsw qxjx qowi mpvf"#your email app password
+    app_password = "App password"#your email app password
 
     message = MIMEText(
         f"""
@@ -49,9 +49,9 @@ def send_otp_email(
     otp
 ):
 
-    sender_email = "vivek.yadavcse23@smslucknow.ac.in"
+    sender_email = "Email address"#your email address
 
-    app_password = "amsw qxjx qowi mpvf"
+    app_password = "App password"#your email app password
 
     msg = MIMEText(
         f"""

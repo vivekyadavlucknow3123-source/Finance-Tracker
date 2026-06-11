@@ -7,8 +7,8 @@ def get_connection():
 
     connection = mysql.connector.connect(
         host="localhost",
-        user="root",
-        password="root",#mysql password
+        user="db name",#mysql username
+        password="password",#mysql password
         database="finance_tracker"
     )
 
