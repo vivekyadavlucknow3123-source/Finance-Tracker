@@ -5,3 +5,5 @@ scikit-learn
 python-dotenv
 werkzeug
 Flask==3.1.0
+reportlab
+reportlab==4.2.2
