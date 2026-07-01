@@ -1,3 +1,4 @@
+import os
 import mysql.connector
 
 def get_connection():
@@ -5,12 +6,15 @@ def get_connection():
     Create and return a MySQL database connection.
     """
 
-    connection = mysql.connector.connect(
-        host="localhost",
-        user="db name",#mysql username
-        password="password",#mysql password
-        database="finance_tracker"
-    )
+
+
+connection = mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT")),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME"),
+)
 
     return connection
 
