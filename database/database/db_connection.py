@@ -1,30 +1,21 @@
 import os
 import mysql.connector
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_connection():
-    """
-    Create and return a MySQL database connection.
-    """
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT", 3306)),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
+    )
 
 
-
-connection = mysql.connector.connect(
-    host=os.getenv("sql.freedb.tech"),
-    port=int(os.getenv("3306")),
-    user=os.getenv("u_55dXWt"),
-    password=os.getenv("JgfTDRrmECll"),
-    database=os.getenv("u_55dXWt"),
-)
-
-    return connection
-
-
-# Test connection when file is run directly
 if __name__ == "__main__":
-
     conn = get_connection()
-
     if conn.is_connected():
         print("✅ Connected Successfully to MySQL!")
         conn.close()
-        print("Connection closed.")
